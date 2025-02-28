@@ -44,6 +44,8 @@ To process images without the GUI and save predictions to text and CSV files, ru
 ecosort.py --dir /dir/name/here --output /your/output/directory/path/here
 
 This will generate .txt and .csv files containing image names and their predicted classifications.
+<img width="449" alt="GUI" src="https://github.com/user-attachments/assets/2d12366a-1ed3-4154-8d05-d0d7acaed91f" />
+
 
 # Credits
 Contributors - Kyler Gelissen, Isaiah Byrd, David Ameh
