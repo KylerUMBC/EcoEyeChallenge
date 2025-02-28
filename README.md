@@ -27,21 +27,25 @@ To enhance usability, we developed a GUI using Tkinter and Pillow, allowing user
 ![image](https://github.com/user-attachments/assets/42a8b8cb-43b9-4504-b3ea-d9ae85578446)
 
 # Installing and Running
-First, open a terminal window and clone the repository by running:
-
-git clone https://github.com/KylerUMBC/EcoEyeChallenge
-
-then,
-
-cd EcoEyeChallenge
+### First, open a terminal window and clone the repository by running:
+```
+    git clone https://github.com/yourusername/EcoSort.git
+    cd EcoSort
+```
+### then, Install required dependencies:
+```
+    pip install -r requirements.txt
+```
 
 To classify images in a directory and display predictions via the GUI, run:
-
-python ecosort.py --dir /your/directory/path/here 
+```
+    python ecosort.py --dir /your/directory/path/here 
+```
 
 To process images without the GUI and save predictions to text and CSV files, run:
-
-ecosort.py --dir /dir/name/here --output /your/output/directory/path/here
+```
+    ecosort.py --dir /dir/name/here --output /your/output/directory/path/here
+```
 
 This will generate .txt and .csv files containing image names and their predicted classifications.
 <img width="449" alt="GUI" src="https://github.com/user-attachments/assets/2d12366a-1ed3-4154-8d05-d0d7acaed91f" />
