@@ -1,13 +1,4 @@
-import warnings
-import subprocess
-import sys
-import os
-import argparse
-import torch
-import torch.nn
-from torchvision import models, transforms
-from PIL import Image
-import PIL.ImageTk
-import numpy
-import tkinter
-from glob import glob
+torch
+torchvision
+Pillow
+numpy
