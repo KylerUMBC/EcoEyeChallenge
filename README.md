@@ -27,7 +27,8 @@ To enhance usability, we developed a GUI using Tkinter and Pillow, allowing user
 ![image](https://github.com/user-attachments/assets/42a8b8cb-43b9-4504-b3ea-d9ae85578446)
 
 # Installing and Running
-First, open a terminal window and clone the repository by running: 
+First, open a terminal window and clone the repository by running:
+
 git clone https://github.com/KylerUMBC/EcoEyeChallenge
 
 then,
