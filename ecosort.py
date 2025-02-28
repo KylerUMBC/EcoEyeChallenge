@@ -1,29 +1,42 @@
 import warnings
-warnings.filterwarnings("ignore")
+warnings.filterwarnings("ignore", category=DeprecationWarning)
 
 import subprocess
 import sys
 import os
 
 def install(package):
-    subprocess.check_call([sys.executable, "-m", "pip3", "install", package])
+    try:
+        subprocess.check_call([sys.executable, "-m", "pip", "install", package])
+    except subprocess.CalledProcessError as e:
+        print(f"❌ Failed to install {package}: {e}")
+        print("Ensure 'pip' is installed and available in the system PATH.")
+        print("You may need to run:")
+        print(f"  {sys.executable} -m ensurepip --upgrade")
+        print(f"  {sys.executable} -m pip install --upgrade pip")
+        sys.exit(1)
+    except FileNotFoundError:
+        print("❌ Python executable not found or pip not callable")
+        sys.exit(1)
+
 
 # List of required packages
 required_packages = [
-    "argparse",
     "torch",
     "torchvision",
-    "PIL",
+    "Pillow",
     "numpy",
-    "glob",
-    "tinker"
 ]
 
 # Install each package if not already installed
 for package in required_packages:
     try:
-        __import__(package)
+        if(package == "Pillow"):
+            __import__("PIL")
+        else:
+            __import__(package)
     except ImportError:
+        print(f"Installing {package}...")
         install(package)
 
 import argparse
@@ -31,7 +44,7 @@ import torch as th
 import torch.nn as nn
 from torchvision import models, transforms
 from PIL import Image
-from PIL import ImageTk
+import PIL.ImageTk as ImageTk
 import numpy as np
 import tkinter as tk
 from glob import glob   
@@ -45,7 +58,7 @@ num_classes = len(class_names)
 
 #Try to load the trained model
 try:
-    model = models.resnet50(pretrained=False)
+    model = models.resnet50(weights=None)
     num_ftrs = model.fc.in_features
     model.fc = nn.Linear(num_ftrs, num_classes)
     model.load_state_dict(th.load("garbage_classification_modelL2ES.pth", map_location=device))
@@ -91,7 +104,7 @@ def batch_predict(images):
     except Exception as e:
         return [f"❌ Error {e}"] * len(images)
 
-def batch_inference(folder, output_folder):
+def batch_inference(folder, output_folder=None):
     """Runs inference on all images in the given folder and saves results."""
     image_paths = glob(os.path.join(folder, "*"))
     image_paths = [p for p in image_paths if p.lower().endswith((".png", ".jpg", ".jpeg"))]
@@ -131,6 +144,60 @@ def batch_inference(folder, output_folder):
     return predictions #We need a return for GUI use
 
 '''Gui functionality'''
+def run_gui(folder):
+    #Gets the images in the folder
+    image_paths = [p for p in glob(os.path.join(folder, "*")) if p.lower().endswith((".png", ".jpg", ".jpeg"))]
+    if not image_paths:
+        print("No images found in the specified folder.")
+        return
+
+    #Gethering the predictions
+    predictions = batch_inference(folder)
+    current_idx = [0] #Navigation index
+    
+    root = tk.Tk()
+    root.title("EcoSort Image Classifier")
+    root.geometry("600x650")
+
+    img_label = tk.Label(root)
+    img_label.pack(pady=10)
+
+    pred_label = tk.Label(root, text="", font=("Arial", 20))
+    pred_label.pack(pady=10)
+
+    #Update the display with the current image and prediction
+    #Retrieves the image path and prediction for the current index
+    #Resizes and updates the image label with the new PhotoImage object
+    def update_display():
+        img_path, pred = predictions[current_idx[0]]
+        img = Image.open(img_path).resize((400, 400), Image.LANCZOS) #Using Lanczos for better quality
+        photo = ImageTk.PhotoImage(img)
+        img_label.config(image=photo)
+        img_label.image = photo #Keeps a reference to the image
+        pred_label.config(text=f"Image: {os.path.basename(img_path)}\nPredicted: {pred}")
+        root.title(f"EcoSort Classification Viewer ({current_idx[0] + 1}/{len(predictions)})")
+
+    #Navigation buttons to move to the previous or next image
+    def prev_image():
+        if current_idx[0] > 0:
+            current_idx[0] -= 1
+            update_display()
+
+    def next_image():
+        if current_idx[0] < len(image_paths) - 1:
+            current_idx[0] += 1
+            update_display()
+    
+    root.bind("<Left>", prev_image())
+    root.bind("<Right>", next_image())
+
+    update_display()
+    btn_frame = tk.Frame(root)
+    btn_frame.pack(pady=10)
+    tk.Button(btn_frame, text="Previous", command=prev_image).pack(side=tk.LEFT, padx=5)
+    tk.Button(btn_frame, text="Next", command=next_image).pack(side=tk.LEFT, padx=5)
+
+    root.mainloop()
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Run inference on a folder of images and save results.")
@@ -147,5 +214,5 @@ if __name__ == "__main__":
     elif args.output:
         batch_inference(args.dir, args.output)
     else:
-        #GUI
+        run_gui(args.dir)
         pass
