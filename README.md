@@ -29,4 +29,4 @@ First, download *ecosort.py* and *garbage_classification_modelL2ES.pth* and plac
 
 # Credits
 Contributors- Kyler Gelissen, Isaiah Byrd, David Ameh
-Coach- Jorge Martinez
+<br/>Coach- Jorge Martinez
