@@ -1,44 +1,8 @@
 import warnings
 warnings.filterwarnings("ignore", category=DeprecationWarning)
 
-import subprocess
 import sys
 import os
-
-def install(package):
-    try:
-        subprocess.check_call([sys.executable, "-m", "pip", "install", package])
-    except subprocess.CalledProcessError as e:
-        print(f"❌ Failed to install {package}: {e}")
-        print("Ensure 'pip' is installed and available in the system PATH.")
-        print("You may need to run:")
-        print(f"  {sys.executable} -m ensurepip --upgrade")
-        print(f"  {sys.executable} -m pip install --upgrade pip")
-        sys.exit(1)
-    except FileNotFoundError:
-        print("❌ Python executable not found or pip not callable")
-        sys.exit(1)
-
-
-# List of required packages
-required_packages = [
-    "torch",
-    "torchvision",
-    "Pillow",
-    "numpy",
-]
-
-# Install each package if not already installed
-for package in required_packages:
-    try:
-        if(package == "Pillow"):
-            __import__("PIL")
-        else:
-            __import__(package)
-    except ImportError:
-        print(f"Installing {package}...")
-        install(package)
-
 import argparse
 import torch as th
 import torch.nn as nn
