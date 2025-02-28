@@ -1,3 +1,6 @@
+import warnings
+warnings.filterwarnings("ignore")
+
 import subprocess
 import sys
 import os
