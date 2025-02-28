@@ -104,7 +104,7 @@ def batch_predict(images):
     except Exception as e:
         return [f"❌ Error {e}"] * len(images)
 
-def batch_inference(folder, output_folder=None):
+def batch_inference(folder, output_folder=None, print_preds=False):
     """Runs inference on all images in the given folder and saves results."""
     image_paths = glob(os.path.join(folder, "*"))
     image_paths = [p for p in image_paths if p.lower().endswith((".png", ".jpg", ".jpeg"))]
@@ -113,12 +113,16 @@ def batch_inference(folder, output_folder=None):
         print("No images found in the specified folder.")
         return
 
-    batch_size = 20
+    batch_size = 16
     predictions = []
     for i in range(0, len(image_paths), batch_size):
         batch_paths = image_paths[i:i + batch_size]
         batch_preds = batch_predict(batch_paths)
         predictions.extend(zip(batch_paths, batch_preds))
+
+    if print_preds:
+        for img_path, pred in predictions:
+            print(f"Image: {os.path.basename(img_path)} → Predicted: {pred}")
 
     # Ensure output directory exists
     if output_folder:
@@ -188,8 +192,9 @@ def run_gui(folder):
             current_idx[0] += 1
             update_display()
     
-    root.bind("<Left>", prev_image())
-    root.bind("<Right>", next_image())
+    #Bind keys to the navigation functions (they pass the event object not call) 
+    root.bind("<Left>", prev_image)
+    root.bind("<Right>", next_image)
 
     update_display()
     btn_frame = tk.Frame(root)
@@ -202,7 +207,9 @@ def run_gui(folder):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Run inference on a folder of images and save results.")
     parser.add_argument("--dir", type=str, required=True, help="Path to the folder containing images.")
-    parser.add_argument("--output", type=str, help="Path to the output folder for predictions.") #Took out required because this isn't needed
+    parser.add_argument("--output", type=str, help="Path to the output folder for predictions.")
+    parser.add_argument("-p", "--print", action="store_true", help="Print the predictions to the console.")
+    parser.add_argument("--gui", action="store_true", help="Force GUI mode to view image predictions.")
 
     args = parser.parse_args()
 
@@ -210,9 +217,10 @@ if __name__ == "__main__":
         print(f"❌ Error: {args.dir} is not a valid directory.")
     elif os.path.isfile(args.dir):
         pred = predict_image(args.dir)
-        print(f"Image: {os.path.basename(args.dir)} → Predicted: {pred}")
-    elif args.output:
-        batch_inference(args.dir, args.output)
-    else:
+        #print(f"Image: {os.path.basename(args.dir)} → Predicted: {pred}")
+    elif args.gui or (not args.output and not args.print):
         run_gui(args.dir)
-        pass
+    elif args.output:
+        batch_inference(args.dir, args.output, args.print)
+    else:
+        batch_inference(args.dir, print_preds=args.print)
