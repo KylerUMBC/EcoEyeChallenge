@@ -41,7 +41,7 @@ num_classes = len(class_names)
 model = models.resnet50(pretrained=False)
 num_ftrs = model.fc.in_features
 model.fc = nn.Linear(num_ftrs, num_classes)
-model.load_state_dict(th.load("garbage_classification_model.pth", map_location=device))
+model.load_state_dict(th.load("garbage_classification_modelL2ES.pth", map_location=device))
 model.to(device)
 model.eval()
 
