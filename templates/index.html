@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>EcoSort - Waste Classification</title>
+</head>
+<body>
+    <h1>Upload Images for Waste Classification</h1>
+    <form id="upload-form" action="/" method="post" enctype="multipart/form-data">
+        <input type="file" name="files" multiple webkitdirectory>
+        <input type="submit" value="Upload">
+    </form>
+    <h2>Predictions:</h2>
+    <ul id="results"></ul>
+
+    <script>
+        document.getElementById("upload-form").onsubmit = async function(event) {
+            event.preventDefault();
+            let formData = new FormData(event.target);
+            let response = await fetch("/", { method: "POST", body: formData });
+            let data = await response.json();
+            
+            let resultsList = document.getElementById("results");
+            resultsList.innerHTML = "";  // Clear previous results
+            for (let [filename, prediction] of Object.entries(data.predictions)) {
+                let li = document.createElement("li");
+                li.textContent = `${filename}: ${prediction}`;
+                resultsList.appendChild(li);
+            }
+        }
+    </script>
+</body>
+</html>
